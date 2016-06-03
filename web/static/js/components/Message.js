@@ -9,6 +9,7 @@ export default class Message extends Component {
           textDecoration: this.props.completed ? 'line-through' : 'none',
           cursor: this.props.completed ? 'default' : 'pointer'
         }}>
+        {this.props.timestamp} |&nbsp;
         {this.props.text}
       </li>
     )

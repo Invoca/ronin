@@ -29018,6 +29018,8 @@
 	            textDecoration: this.props.completed ? 'line-through' : 'none',
 	            cursor: this.props.completed ? 'default' : 'pointer'
 	          } },
+	        this.props.timestamp,
+	        ' | ',
 	        this.props.text
 	      );
 	    }
