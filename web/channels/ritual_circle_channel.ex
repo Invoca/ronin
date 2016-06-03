@@ -9,13 +9,9 @@ defmodule Ronin.RitualCircleChannel do
     spells = RitualCircleServer.all()
     local_node = AkashicRecords.local_node()
     remote_nodes = AkashicRecords.remote_nodes()
-    IO.puts "local nodes"
-    IO.puts local_node
-    IO.puts "remote nodes"
-    IO.puts remote_nodes
 
-    #{:ok, %{ spells: spells, local_node: local_node, remote_nodes: remote_nodes }, socket}
-    {:ok, %{ spells: spells }, socket}
+    {:ok, %{ spells: spells, local_node: local_node, remote_nodes: remote_nodes }, socket}
+    #{:ok, %{ spells: spells }, socket}
   end
   
   def handle_in("new:spell", params, socket) do
