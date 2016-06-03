@@ -12,7 +12,7 @@ defmodule Ronin.CovenServer do
     :global.register_name(AkashicRecords.local_node(), pid)
   end
   
-  def register_coven({:error, {_, pid}}) do
+  def register_coven({:error, reason}) do
     # :global.register_name(AkashicRecords.local_node(), pid)
   end
   
