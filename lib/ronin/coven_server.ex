@@ -3,9 +3,7 @@ defmodule Ronin.CovenServer do
   alias Ronin.AkashicRecords
   
   def start_link do
-    coven = spawn(
-      fn -> loop() end
-    )
+    coven = Agent.start_link(fn -> loop() end, name: __MODULE__)
     
     :global.register_name(AkashicRecords.local_node(), coven)
   end
