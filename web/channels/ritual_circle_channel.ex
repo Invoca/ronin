@@ -3,7 +3,8 @@ defmodule Ronin.RitualCircleChannel do
   
   alias Ronin.RitualCircleServer
   alias Ronin.CovenServer
-    
+  alias Ronin.AkashicRecords
+
   def join("ritual_circle" <> ritual_circle_id, _params, socket) do
     spells = RitualCircleServer.all()
     local_node = AkashicRecords.local_node()
