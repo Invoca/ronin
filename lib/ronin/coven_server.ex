@@ -5,7 +5,15 @@ defmodule Ronin.CovenServer do
   def start_link do
     coven = Agent.start_link(fn -> loop() end, name: __MODULE__)
     
-    :global.register_name(AkashicRecords.local_node(), coven)
+    register_coven(coven)
+  end
+  
+  def register_coven({:ok, pid}) do
+    :global.register_name(AkashicRecords.local_node(), pid)
+  end
+  
+  def register_coven({:error, {_, pid}}) do
+    # :global.register_name(AkashicRecords.local_node(), pid)
   end
   
   def send_spell(spell_payload) do
