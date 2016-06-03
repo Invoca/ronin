@@ -5,7 +5,7 @@ defmodule Ronin.AkashicRecords do
     :"#{local_name}"
   end
 
-  def remote_nodes
+  def remote_nodes do
     Node.list
     |> Enum.map( fn(v) -> [r,_] = String.split(to_string(v), "@") end )
     |> Enum.map( fn(v) -> [first, _] = v; first end )
