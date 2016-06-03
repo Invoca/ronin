@@ -1,8 +1,10 @@
 defmodule Ronin.AkashicRecords do
 
   def local_node do
-    {:ok, [{local_name, _}]} = :net_adm.names
-    :"#{local_name}"
+   case :net_adm.names do
+     {:ok, [{local_name, _}]} -> :"#{local_name}"
+     _ -> :localhost
+    end
   end
 
   def remote_nodes do
