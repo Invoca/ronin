@@ -13,11 +13,21 @@ use Mix.Config
 # which you typically run after static files are built.
 config :ronin, Ronin.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/manifest.json"
+  url: [host: "example.com", port: 80]
+
+#  cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
+
+# Configure your database
+config :ronin, Ronin.Repo,
+  adapter: Ecto.Adapters.MySQL,
+  username: "root",
+  password: "",
+  database: "ronin_dev",
+  hostname: "localhost",
+  pool_size: 10
 
 # ## SSL Support
 #
@@ -48,18 +58,18 @@ config :logger, level: :info
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start the server for all endpoints:
 #
-#     config :phoenix, :serve_endpoints, true
+config :phoenix, :serve_endpoints, true
 #
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
-#     config :ronin, Ronin.Endpoint, server: true
+# config :ronin, Ronin.Endpoint, server: true
 #
 # You will also need to set the application root to `.` in order
 # for the new static assets to be served after a hot upgrade:
 #
-#     config :ronin, Ronin.Endpoint, root: "."
+config :ronin, Ronin.Endpoint, root: "."
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
-import_config "prod.secret.exs"
+#import_config "prod.secret.exs"
