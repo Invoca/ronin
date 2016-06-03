@@ -1,5 +1,7 @@
 defmodule Ronin.RitualCircleChannel do
   use Ronin.Web, :channel
+  
+  alias Ronin.RitualCircleServer
     
   def join("ritual_circle:" <> ritual_circle_id, _params, socket) do
     spells = RitualCircleServer.all()

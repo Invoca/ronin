@@ -2,7 +2,7 @@ defmodule Ronin.RitualCircleSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "ritual_circle:*", Ronin.RitualCircleChannel
+  channel "ritual_circle", Ronin.RitualCircleChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
