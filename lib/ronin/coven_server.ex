@@ -4,7 +4,7 @@ defmodule Ronin.CovenServer do
   
   def start do
     coven = spawn(
-      fn -> loop()
+      fn -> loop() end
     )
     
     :global.register_name(AkashicRecords.local_node_name(), coven)
