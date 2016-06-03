@@ -1,7 +1,7 @@
 defmodule Ronin.Endpoint do
   use Phoenix.Endpoint, otp_app: :ronin
 
-  socket "/ritual_circle", Ronin.RitualCircleSocket
+  socket "/ws_ritual_circle", Ronin.RitualCircleSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -15,11 +15,11 @@
     <div class="container">
       <header class="header">
         <nav role="navigation">
-          <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
-          </ul>
+          <div class="subtitle pull-right">
+            A multi-node Elixir chat server
+          </div>
         </nav>
-        <span class="logo"></span>
+        <h2 class="logo"><%= gettext "Invoca Ronin" %></h2>
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
