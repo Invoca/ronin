@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { SOCKET_CONNECTED, SOCKET_DISCONNECTED, FETCH_MESSAGES_REQUEST, FETCH_MESSAGES_SUCCESS, FETCH_MESSAGES_FAILURE, ADD_MESSAGE_REQUEST, ADD_MESSAGE_SUCCESS, ADD_MESSAGE_FAILURE, COMPLETE_MESSAGE, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions';
+import { SOCKET_CONNECTED, SOCKET_DISCONNECTED, FETCH_SERVERS, FETCH_MESSAGES_REQUEST, FETCH_MESSAGES_SUCCESS, FETCH_MESSAGES_FAILURE, ADD_MESSAGE_REQUEST, ADD_MESSAGE_SUCCESS, ADD_MESSAGE_FAILURE, COMPLETE_MESSAGE, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions';
 const { SHOW_ALL } = VisibilityFilters;
 
 function visibilityFilter(state = SHOW_ALL, action) {
@@ -21,11 +21,12 @@ function spells(state = [], action) {
       return state;
 
     case ADD_MESSAGE_SUCCESS:
+      const now = new Date();
       return [
         ...state,
         {
           text: action.text,
-          completed: false
+          timestamp: `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`
         }
       ];
 
@@ -42,6 +43,17 @@ function spells(state = [], action) {
         ...state.slice(action.index + 1)
       ];
 
+    default:
+      return state;
+  }
+}
+
+function servers(state = { local: '', remote: [] }, action) {
+  switch (action.type) {
+    case FETCH_SERVERS:
+      console.log("FETCH_SERVERS", state, action);
+      return { local: action.local, remote: action.remote }
+      
     default:
       return state;
   }
@@ -77,6 +89,7 @@ function isConnected(state = false, action) {
 const messageApp = combineReducers({
   visibilityFilter,
   spells,
+  servers,
   isConnected,
   isLoading
 });

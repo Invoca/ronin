@@ -27532,6 +27532,8 @@
 	  _createClass(App, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+	      var _this2 = this;
+
 	      var dispatch = this.props.dispatch;
 
 
@@ -27541,7 +27543,13 @@
 	      });
 
 	      _actions.socket.onError(function (msg) {
-	        console.log('SOCKET error', msg);
+	        console.log('SOCKET error', msg, _this2.props.isConnected);
+	        setTimeout(function () {
+	          console.log("After timeout", _this2.props.isConnected);
+	        }, 1 * 1000);
+	        setTimeout(function () {
+	          console.log("After timeout", _this2.props.isConnected);
+	        }, 10 * 1000);
 	        return dispatch((0, _actions.socketDisconnected)());
 	      });
 
@@ -27554,16 +27562,17 @@
 	      var _props = this.props;
 	      var dispatch = _props.dispatch;
 	      var visibleTodos = _props.visibleTodos;
+	      var servers = _props.servers;
 	      var isLoading = _props.isLoading;
 	      var isConnected = _props.isConnected;
-	      var visibilityFilter = _props.visibilityFilter;
 
 
 	      return _react2.default.createElement(
 	        'div',
 	        null,
 	        _react2.default.createElement(_Status2.default, {
-	          isConnected: isConnected }),
+	          isConnected: isConnected,
+	          servers: servers }),
 	        _react2.default.createElement(
 	          'h4',
 	          null,
@@ -27571,10 +27580,7 @@
 	        ),
 	        _react2.default.createElement(_MessageList2.default, {
 	          spells: visibleTodos,
-	          isLoading: isLoading,
-	          onTodoClick: function onTodoClick(index) {
-	            return dispatch((0, _actions.completeTodo)(index));
-	          } }),
+	          isLoading: isLoading }),
 	        _react2.default.createElement('hr', null),
 	        _react2.default.createElement(_AddMessage2.default, {
 	          onAddClick: function onAddClick(text) {
@@ -27590,32 +27596,16 @@
 	App.propTypes = {
 	  visibleTodos: _react.PropTypes.arrayOf(_react.PropTypes.shape({
 	    text: _react.PropTypes.string.isRequired,
-	    completed: _react.PropTypes.bool.isRequired
-	  })),
-	  visibilityFilter: _react.PropTypes.oneOf(['SHOW_ALL', 'SHOW_COMPLETED', 'SHOW_ACTIVE']).isRequired
+	    timestamp: _react.PropTypes.string.isRequired
+	  }))
 	};
-
-	function selectTodos(todos, filter) {
-	  switch (filter) {
-	    case _actions.VisibilityFilters.SHOW_ALL:
-	      return todos;
-	    case _actions.VisibilityFilters.SHOW_COMPLETED:
-	      return todos.filter(function (todo) {
-	        return todo.completed;
-	      });
-	    case _actions.VisibilityFilters.SHOW_ACTIVE:
-	      return todos.filter(function (todo) {
-	        return !todo.completed;
-	      });
-	  }
-	}
 
 	// Which props do we want to inject, given the global state?
 	// Note: use https://github.com/faassen/reselect for better performance.
 	function select(state) {
 	  return {
-	    visibleTodos: selectTodos(state.spells, state.visibilityFilter),
-	    visibilityFilter: state.visibilityFilter,
+	    visibleTodos: state.spells,
+	    servers: state.servers,
 	    isLoading: state.isLoading,
 	    isConnected: state.isConnected
 	  };
@@ -27633,7 +27623,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.VisibilityFilters = exports.SET_VISIBILITY_FILTER = exports.COMPLETE_MESSAGE = exports.ADD_MESSAGE_FAILURE = exports.ADD_MESSAGE_SUCCESS = exports.ADD_MESSAGE_REQUEST = exports.FETCH_MESSAGES_FAILURE = exports.FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_REQUEST = exports.SOCKET_DISCONNECTED = exports.SOCKET_CONNECTED = exports.socket = undefined;
+	exports.VisibilityFilters = exports.SET_VISIBILITY_FILTER = exports.COMPLETE_MESSAGE = exports.ADD_MESSAGE_FAILURE = exports.ADD_MESSAGE_SUCCESS = exports.ADD_MESSAGE_REQUEST = exports.FETCH_MESSAGES_FAILURE = exports.FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_REQUEST = exports.FETCH_SERVERS = exports.SOCKET_DISCONNECTED = exports.SOCKET_CONNECTED = exports.socket = undefined;
+	exports.fetchServers = fetchServers;
 	exports.addMessage = addMessage;
 	exports.fetchMessages = fetchMessages;
 	exports.completeMessage = completeMessage;
@@ -27652,6 +27643,8 @@
 
 	var SOCKET_CONNECTED = exports.SOCKET_CONNECTED = 'SOCKET_CONNECTED';
 	var SOCKET_DISCONNECTED = exports.SOCKET_DISCONNECTED = 'SOCKET_DISCONNECTED';
+
+	var FETCH_SERVERS = exports.FETCH_SERVERS = 'FETCH_SERVERS';
 
 	var FETCH_MESSAGES_REQUEST = exports.FETCH_MESSAGES_REQUEST = 'FETCH_MESSAGES_REQUEST';
 	var FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
@@ -27702,6 +27695,10 @@
 	  return { type: ADD_MESSAGE_FAILURE, text: text, error: error };
 	}
 
+	function fetchServers(local, remote) {
+	  return { type: FETCH_SERVERS, local: local, remote: remote };
+	}
+
 	function addMessage(text) {
 	  return function (dispatch) {
 	    dispatch(addMessageRequest(text));
@@ -27725,6 +27722,9 @@
 
 	    channel.join().receive('ok', function (messages) {
 	      dispatch(fetchMessagesSuccess(messages.spells));
+	      dispatch(fetchServers(messages.local_node, messages.remote_nodes));
+	      //dispatch(fetchServers('a', ['b', 'c']));
+	      //dispatch(fetchServers('a', []));
 	    }).receive('error', function (reason) {
 	      dispatch(fetchMessagesFailure(reason));
 	    });
@@ -28853,7 +28853,7 @@
 	            } }),
 	          _react2.default.createElement(
 	            "button",
-	            { className: "btn btn-primary", style: { 'margin-left': '10px' }, onClick: function onClick(e) {
+	            { className: "btn btn-primary", style: { marginLeft: '10px' }, onClick: function onClick(e) {
 	                return _this2.handleClick(e);
 	              } },
 	            "Captivate"
@@ -28931,8 +28931,6 @@
 	  _createClass(MessageList, [{
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-
 	      if (this.props.isLoading) {
 	        return _react2.default.createElement(
 	          'p',
@@ -28948,12 +28946,9 @@
 	      return _react2.default.createElement(
 	        'ul',
 	        { className: 'messages' },
-	        this.props.spells.map(function (todo, index) {
-	          return _react2.default.createElement(_Message2.default, _extends({}, todo, {
-	            key: index,
-	            onClick: function onClick() {
-	              return _this2.props.onTodoClick(index);
-	            } }));
+	        this.props.spells.map(function (spell, index) {
+	          return _react2.default.createElement(_Message2.default, _extends({}, spell, {
+	            key: index }));
 	        })
 	      );
 	    }
@@ -28966,11 +28961,10 @@
 
 
 	MessageList.propTypes = {
-	  onTodoClick: _react.PropTypes.func.isRequired,
 	  isLoading: _react.PropTypes.bool.isRequired,
 	  spells: _react.PropTypes.arrayOf(_react.PropTypes.shape({
 	    text: _react.PropTypes.string.isRequired,
-	    completed: _react.PropTypes.bool.isRequired
+	    timestamp: _react.PropTypes.string.isRequired
 	  }).isRequired).isRequired
 	};
 
@@ -28978,7 +28972,7 @@
 /* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -29008,20 +29002,32 @@
 	  }
 
 	  _createClass(Message, [{
-	    key: 'render',
+	    key: "render",
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'li',
-	        {
-	          onClick: this.props.onClick,
-	          style: {
-	            textDecoration: this.props.completed ? 'line-through' : 'none',
-	            cursor: this.props.completed ? 'default' : 'pointer'
-	          } },
-	        this.props.timestamp,
-	        ' | ',
-	        this.props.text
+	        "li",
+	        null,
+	        _react2.default.createElement(
+	          "span",
+	          { className: "time" },
+	          this._formatTimestamp(this.props.timestamp)
+	        ),
+	        _react2.default.createElement(
+	          "span",
+	          { className: "text" },
+	          this.props.text
+	        )
 	      );
+	    }
+	  }, {
+	    key: "_formatTimestamp",
+	    value: function _formatTimestamp(stamp) {
+	      var pieces = stamp.split(":");
+	      if (pieces[2].length === 1) {
+	        pieces[2] = "0" + pieces[2];
+	      }
+
+	      return pieces.join(":");
 	    }
 	  }]);
 
@@ -29032,9 +29038,8 @@
 
 
 	Message.propTypes = {
-	  onClick: _react.PropTypes.func.isRequired,
 	  text: _react.PropTypes.string.isRequired,
-	  completed: _react.PropTypes.bool.isRequired
+	  timestamp: _react.PropTypes.string.isRequired
 	};
 
 /***/ },
@@ -29079,9 +29084,12 @@
 	        'Status:',
 	        _react2.default.createElement(
 	          'span',
-	          { style: { 'padding-left': '10px' } },
+	          { style: { paddingLeft: '5px' } },
 	          this.props.isConnected ? this._renderConnected() : this._renderDisconnected()
-	        )
+	        ),
+	        _react2.default.createElement('br', null),
+	        'Other nodes: ',
+	        this._renderNodes()
 	      );
 	    }
 	  }, {
@@ -29090,7 +29098,8 @@
 	      return _react2.default.createElement(
 	        'span',
 	        { className: 'label label-success' },
-	        'Connected'
+	        'Connected to ',
+	        this.props.servers.local
 	      );
 	    }
 	  }, {
@@ -29099,8 +29108,28 @@
 	      return _react2.default.createElement(
 	        'span',
 	        { className: 'label label-warning' },
-	        'Disconnected'
+	        'Disconnected from ',
+	        this.props.servers.local
 	      );
+	    }
+	  }, {
+	    key: '_renderNodes',
+	    value: function _renderNodes() {
+	      if (this.props.servers.remote.length === 0) {
+	        return _react2.default.createElement(
+	          'i',
+	          null,
+	          'No other nodes'
+	        );
+	      }
+
+	      return this.props.servers.remote.map(function (node) {
+	        return _react2.default.createElement(
+	          'span',
+	          { key: node, className: 'label label-default', style: { marginRight: '5px' } },
+	          node
+	        );
+	      });
 	    }
 	  }]);
 
@@ -29111,7 +29140,8 @@
 
 
 	Status.propTypes = {
-	  isConnected: _react.PropTypes.bool.isRequired
+	  isConnected: _react.PropTypes.bool.isRequired,
+	  servers: _react.PropTypes.object.isRequired
 	};
 
 /***/ },
@@ -29158,9 +29188,10 @@
 	      return state;
 
 	    case _actions.ADD_MESSAGE_SUCCESS:
+	      var now = new Date();
 	      return [].concat(_toConsumableArray(state), [{
 	        text: action.text,
-	        completed: false
+	        timestamp: now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds()
 	      }]);
 
 	    case _actions.ADD_MESSAGE_FAILURE:
@@ -29171,6 +29202,20 @@
 	      return [].concat(_toConsumableArray(state.slice(0, action.index)), [Object.assign({}, state[action.index], {
 	        completed: true
 	      })], _toConsumableArray(state.slice(action.index + 1)));
+
+	    default:
+	      return state;
+	  }
+	}
+
+	function servers() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? { local: '', remote: [] } : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _actions.FETCH_SERVERS:
+	      console.log("FETCH_SERVERS", state, action);
+	      return { local: action.local, remote: action.remote };
 
 	    default:
 	      return state;
@@ -29213,6 +29258,7 @@
 	var messageApp = (0, _redux.combineReducers)({
 	  visibilityFilter: visibilityFilter,
 	  spells: spells,
+	  servers: servers,
 	  isConnected: isConnected,
 	  isLoading: isLoading
 	});
