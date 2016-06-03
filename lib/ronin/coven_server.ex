@@ -2,7 +2,7 @@ defmodule Ronin.CovenServer do
   alias Ronin.RitualCircleServer
   alias Ronin.AkashicRecords
   
-  def start do
+  def start_link do
     coven = spawn(
       fn -> loop() end
     )
