@@ -3,7 +3,7 @@ defmodule Ronin.RitualCircleChannel do
   
   alias Ronin.RitualCircleServer
     
-  def join("ritual_circle:" <> ritual_circle_id, _params, socket) do
+  def join("ritual_circle" <> ritual_circle_id, _params, socket) do
     spells = RitualCircleServer.all()
   
     {:ok, %{ spells: spells }, socket}
