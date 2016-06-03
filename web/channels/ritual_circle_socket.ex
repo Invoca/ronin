@@ -1,8 +1,8 @@
-defmodule Ronin.UserSocket do
+defmodule Ronin.RitualCircleSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "rooms:*", Ronin.RoomChannel
+  channel "ritual_circle:*", Ronin.RitualCircleChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
