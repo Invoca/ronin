@@ -6,7 +6,7 @@ export default class AddTodo extends Component {
       <form className="form-inline">
         <div className="form-group">
           <input className='form-control' placeholder='Cast a spell' type='text' ref='input' onKeyPress={e => this.handleKeyPress(e)} />
-          <button className='btn btn-primary' style={{'margin-left': '10px'}} onClick={e => this.handleClick(e)}>
+          <button className='btn btn-primary' style={{marginLeft: '10px'}} onClick={e => this.handleClick(e)}>
             Captivate
           </button>
         </div>

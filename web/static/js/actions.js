@@ -10,6 +10,8 @@ let channel = socket.channel('ritual_circle');
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
 export const SOCKET_DISCONNECTED = 'SOCKET_DISCONNECTED';
 
+export const FETCH_SERVERS = 'FETCH_SERVERS';
+
 export const FETCH_MESSAGES_REQUEST = 'FETCH_MESSAGES_REQUEST';
 export const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 export const FETCH_MESSAGES_FAILURE = 'FETCH_MESSAGES_FAILURE';
@@ -35,6 +37,7 @@ export const VisibilityFilters = {
  * action creators
  */
 
+
 function fetchMessagesRequest() {
   return { type: FETCH_MESSAGES_REQUEST };
 }
@@ -57,6 +60,10 @@ function addMessageSuccess(text) {
 
 function addMessageFailure(text, error) {
   return { type: ADD_MESSAGE_FAILURE, text, error };
+}
+
+export function fetchServers(local, remote) {
+  return { type: FETCH_SERVERS, local, remote };
 }
 
 export function addMessage(text) {
@@ -85,6 +92,9 @@ export function fetchMessages() {
     channel.join()
       .receive('ok', messages => {
         dispatch(fetchMessagesSuccess(messages.spells));
+        dispatch(fetchServers(messages.local_node, messages.remote_nodes));
+        //dispatch(fetchServers('a', ['b', 'c']));
+        //dispatch(fetchServers('a', []));
       })
       .receive('error', reason => {
         dispatch(fetchMessagesFailure(reason));
