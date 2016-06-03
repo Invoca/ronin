@@ -7,12 +7,14 @@ defmodule Ronin.RitualCircleServer do
     Agent.get(__MODULE__, fn spells -> spells end)
   end
   
-  def add(text) do
+  def add({text, {_, {hours, minutes, seconds}}}) do
     spell = %{
       text: text,
-      completed: false
+      timestamp: "#{hours}:#{minutes}:#{seconds}"
     }
     
     Agent.update(__MODULE__, fn spells -> spells ++ [spell] end)
+    
+    spell
   end
 end

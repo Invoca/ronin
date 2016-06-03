@@ -10,7 +10,7 @@ export default class MessageList extends Component {
     }
 
     return (
-      <ul>
+      <ul className="messages">
         {this.props.spells.map((todo, index) =>
           <Message {...todo}
                 key={index}

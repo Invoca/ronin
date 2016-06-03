@@ -27504,13 +27504,13 @@
 
 	var _AddMessage2 = _interopRequireDefault(_AddMessage);
 
-	var _MessageList = __webpack_require__(342);
+	var _MessageList = __webpack_require__(338);
 
 	var _MessageList2 = _interopRequireDefault(_MessageList);
 
-	var _Footer = __webpack_require__(340);
+	var _Status = __webpack_require__(340);
 
-	var _Footer2 = _interopRequireDefault(_Footer);
+	var _Status2 = _interopRequireDefault(_Status);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27535,6 +27535,16 @@
 	      var dispatch = this.props.dispatch;
 
 
+	      _actions.socket.onOpen(function (msg) {
+	        console.log('SOCKET open', msg);
+	        return dispatch((0, _actions.socketConnected)());
+	      });
+
+	      _actions.socket.onError(function (msg) {
+	        console.log('SOCKET error', msg);
+	        return dispatch((0, _actions.socketDisconnected)());
+	      });
+
 	      dispatch((0, _actions.fetchMessages)());
 	    }
 	  }, {
@@ -27545,26 +27555,30 @@
 	      var dispatch = _props.dispatch;
 	      var visibleTodos = _props.visibleTodos;
 	      var isLoading = _props.isLoading;
+	      var isConnected = _props.isConnected;
 	      var visibilityFilter = _props.visibilityFilter;
 
 
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_AddMessage2.default, {
-	          onAddClick: function onAddClick(text) {
-	            return dispatch((0, _actions.addMessage)(text));
-	          } }),
+	        _react2.default.createElement(_Status2.default, {
+	          isConnected: isConnected }),
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          'Spells:'
+	        ),
 	        _react2.default.createElement(_MessageList2.default, {
 	          spells: visibleTodos,
 	          isLoading: isLoading,
 	          onTodoClick: function onTodoClick(index) {
 	            return dispatch((0, _actions.completeTodo)(index));
 	          } }),
-	        _react2.default.createElement(_Footer2.default, {
-	          filter: visibilityFilter,
-	          onFilterChange: function onFilterChange(nextFilter) {
-	            return dispatch((0, _actions.setVisibilityFilter)(nextFilter));
+	        _react2.default.createElement('hr', null),
+	        _react2.default.createElement(_AddMessage2.default, {
+	          onAddClick: function onAddClick(text) {
+	            return dispatch((0, _actions.addMessage)(text));
 	          } })
 	      );
 	    }
@@ -27602,7 +27616,8 @@
 	  return {
 	    visibleTodos: selectTodos(state.spells, state.visibilityFilter),
 	    visibilityFilter: state.visibilityFilter,
-	    isLoading: state.isLoading
+	    isLoading: state.isLoading,
+	    isConnected: state.isConnected
 	  };
 	}
 
@@ -27618,20 +27633,25 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.VisibilityFilters = exports.SET_VISIBILITY_FILTER = exports.COMPLETE_MESSAGE = exports.ADD_MESSAGE_FAILURE = exports.ADD_MESSAGE_SUCCESS = exports.ADD_MESSAGE_REQUEST = exports.FETCH_MESSAGES_FAILURE = exports.FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_REQUEST = undefined;
+	exports.VisibilityFilters = exports.SET_VISIBILITY_FILTER = exports.COMPLETE_MESSAGE = exports.ADD_MESSAGE_FAILURE = exports.ADD_MESSAGE_SUCCESS = exports.ADD_MESSAGE_REQUEST = exports.FETCH_MESSAGES_FAILURE = exports.FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_REQUEST = exports.SOCKET_DISCONNECTED = exports.SOCKET_CONNECTED = exports.socket = undefined;
 	exports.addMessage = addMessage;
 	exports.fetchMessages = fetchMessages;
 	exports.completeMessage = completeMessage;
 	exports.setVisibilityFilter = setVisibilityFilter;
+	exports.socketConnected = socketConnected;
+	exports.socketDisconnected = socketDisconnected;
 
 	var _channel = __webpack_require__(335);
 
-	var socket = (0, _channel.configureChannel)();
+	var socket = exports.socket = (0, _channel.configureChannel)();
 	var channel = socket.channel('ritual_circle');
 
 	/*
 	 * action types
 	 */
+
+	var SOCKET_CONNECTED = exports.SOCKET_CONNECTED = 'SOCKET_CONNECTED';
+	var SOCKET_DISCONNECTED = exports.SOCKET_DISCONNECTED = 'SOCKET_DISCONNECTED';
 
 	var FETCH_MESSAGES_REQUEST = exports.FETCH_MESSAGES_REQUEST = 'FETCH_MESSAGES_REQUEST';
 	var FETCH_MESSAGES_SUCCESS = exports.FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
@@ -27690,11 +27710,10 @@
 	      text: text
 	    };
 
-	    console.log("pushing spell!", payload);
 	    channel.push('new:spell', payload).receive('ok', function (response) {
 	      console.log('created MESSAGE', response);
 	    }).receive('error', function (error) {
-	      console.error(error);
+	      console.error('error creating message', error);
 	      dispatch(addMessageFailure(text, error));
 	    });
 	  };
@@ -27705,16 +27724,13 @@
 	    dispatch(fetchMessagesRequest());
 
 	    channel.join().receive('ok', function (messages) {
-	      console.log('catching up', messages);
 	      dispatch(fetchMessagesSuccess(messages.spells));
 	    }).receive('error', function (reason) {
-	      console.log('failed join', reason);
 	      dispatch(fetchMessagesFailure(reason));
 	    });
 	    //.after(10000, () => console.log('Networking issue. Still waiting...'));
 
 	    channel.on('new:spell', function (msg) {
-	      console.log('new:spell', msg);
 	      dispatch(addMessageSuccess(msg.text));
 	    });
 	  };
@@ -27726,6 +27742,14 @@
 
 	function setVisibilityFilter(filter) {
 	  return { type: SET_VISIBILITY_FILTER, filter: filter };
+	}
+
+	function socketConnected() {
+	  return { type: SOCKET_CONNECTED };
+	}
+
+	function socketDisconnected() {
+	  return { type: SOCKET_DISCONNECTED };
 	}
 
 /***/ },
@@ -28784,7 +28808,7 @@
 /* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -28814,27 +28838,31 @@
 	  }
 
 	  _createClass(AddTodo, [{
-	    key: 'render',
+	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
 
 	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement('input', { type: 'text', ref: 'input', onKeyPress: function onKeyPress(e) {
-	            return _this2.handleKeyPress(e);
-	          } }),
+	        "form",
+	        { className: "form-inline" },
 	        _react2.default.createElement(
-	          'button',
-	          { onClick: function onClick(e) {
-	              return _this2.handleClick(e);
-	            } },
-	          'Add'
+	          "div",
+	          { className: "form-group" },
+	          _react2.default.createElement("input", { className: "form-control", placeholder: "Cast a spell", type: "text", ref: "input", onKeyPress: function onKeyPress(e) {
+	              return _this2.handleKeyPress(e);
+	            } }),
+	          _react2.default.createElement(
+	            "button",
+	            { className: "btn btn-primary", style: { 'margin-left': '10px' }, onClick: function onClick(e) {
+	                return _this2.handleClick(e);
+	              } },
+	            "Captivate"
+	          )
 	        )
 	      );
 	    }
 	  }, {
-	    key: 'handleClick',
+	    key: "handleClick",
 	    value: function handleClick(e) {
 	      var node = this.refs.input;
 	      var text = node.value.trim();
@@ -28842,10 +28870,11 @@
 	      node.value = '';
 	    }
 	  }, {
-	    key: 'handleKeyPress',
+	    key: "handleKeyPress",
 	    value: function handleKeyPress(e) {
 	      if (e.charCode === 13) {
 	        this.handleClick(e);
+	        e.preventDefault();
 	      }
 	    }
 	  }]);
@@ -28861,8 +28890,152 @@
 	};
 
 /***/ },
-/* 338 */,
-/* 339 */,
+/* 338 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Message = __webpack_require__(339);
+
+	var _Message2 = _interopRequireDefault(_Message);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var MessageList = function (_Component) {
+	  _inherits(MessageList, _Component);
+
+	  function MessageList() {
+	    _classCallCheck(this, MessageList);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(MessageList).apply(this, arguments));
+	  }
+
+	  _createClass(MessageList, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      if (this.props.isLoading) {
+	        return _react2.default.createElement(
+	          'p',
+	          null,
+	          _react2.default.createElement(
+	            'em',
+	            null,
+	            'Loading ...'
+	          )
+	        );
+	      }
+
+	      return _react2.default.createElement(
+	        'ul',
+	        { className: 'messages' },
+	        this.props.spells.map(function (todo, index) {
+	          return _react2.default.createElement(_Message2.default, _extends({}, todo, {
+	            key: index,
+	            onClick: function onClick() {
+	              return _this2.props.onTodoClick(index);
+	            } }));
+	        })
+	      );
+	    }
+	  }]);
+
+	  return MessageList;
+	}(_react.Component);
+
+	exports.default = MessageList;
+
+
+	MessageList.propTypes = {
+	  onTodoClick: _react.PropTypes.func.isRequired,
+	  isLoading: _react.PropTypes.bool.isRequired,
+	  spells: _react.PropTypes.arrayOf(_react.PropTypes.shape({
+	    text: _react.PropTypes.string.isRequired,
+	    completed: _react.PropTypes.bool.isRequired
+	  }).isRequired).isRequired
+	};
+
+/***/ },
+/* 339 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Message = function (_Component) {
+	  _inherits(Message, _Component);
+
+	  function Message() {
+	    _classCallCheck(this, Message);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Message).apply(this, arguments));
+	  }
+
+	  _createClass(Message, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'li',
+	        {
+	          onClick: this.props.onClick,
+	          style: {
+	            textDecoration: this.props.completed ? 'line-through' : 'none',
+	            cursor: this.props.completed ? 'default' : 'pointer'
+	          } },
+	        this.props.text
+	      );
+	    }
+	  }]);
+
+	  return Message;
+	}(_react.Component);
+
+	exports.default = Message;
+
+
+	Message.propTypes = {
+	  onClick: _react.PropTypes.func.isRequired,
+	  text: _react.PropTypes.string.isRequired,
+	  completed: _react.PropTypes.bool.isRequired
+	};
+
+/***/ },
 /* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -28886,60 +29059,57 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Footer = function (_Component) {
-	  _inherits(Footer, _Component);
+	var Status = function (_Component) {
+	  _inherits(Status, _Component);
 
-	  function Footer() {
-	    _classCallCheck(this, Footer);
+	  function Status() {
+	    _classCallCheck(this, Status);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Footer).apply(this, arguments));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Status).apply(this, arguments));
 	  }
 
-	  _createClass(Footer, [{
-	    key: 'renderFilter',
-	    value: function renderFilter(filter, name) {
-	      var _this2 = this;
-
-	      if (filter === this.props.filter) {
-	        return name;
-	      }
-
-	      return _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick(e) {
-	            e.preventDefault();
-	            _this2.props.onFilterChange(filter);
-	          } },
-	        name
-	      );
-	    }
-	  }, {
+	  _createClass(Status, [{
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'p',
 	        null,
-	        'Show:',
-	        ' ',
-	        this.renderFilter('SHOW_ALL', 'All'),
-	        ', ',
-	        this.renderFilter('SHOW_COMPLETED', 'Completed'),
-	        ', ',
-	        this.renderFilter('SHOW_ACTIVE', 'Active'),
-	        '.'
+	        'Status:',
+	        _react2.default.createElement(
+	          'span',
+	          { style: { 'padding-left': '10px' } },
+	          this.props.isConnected ? this._renderConnected() : this._renderDisconnected()
+	        )
+	      );
+	    }
+	  }, {
+	    key: '_renderConnected',
+	    value: function _renderConnected() {
+	      return _react2.default.createElement(
+	        'span',
+	        { className: 'label label-success' },
+	        'Connected'
+	      );
+	    }
+	  }, {
+	    key: '_renderDisconnected',
+	    value: function _renderDisconnected() {
+	      return _react2.default.createElement(
+	        'span',
+	        { className: 'label label-warning' },
+	        'Disconnected'
 	      );
 	    }
 	  }]);
 
-	  return Footer;
+	  return Status;
 	}(_react.Component);
 
-	exports.default = Footer;
+	exports.default = Status;
 
 
-	Footer.propTypes = {
-	  onFilterChange: _react.PropTypes.func.isRequired,
-	  filter: _react.PropTypes.oneOf(['SHOW_ALL', 'SHOW_COMPLETED', 'SHOW_ACTIVE']).isRequired
+	Status.propTypes = {
+	  isConnected: _react.PropTypes.bool.isRequired
 	};
 
 /***/ },
@@ -29022,159 +29192,30 @@
 	  }
 	}
 
-	var spellApp = (0, _redux.combineReducers)({
+	function isConnected() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _actions.SOCKET_CONNECTED:
+	      return true;
+
+	    case _actions.SOCKET_DISCONNECTED:
+	      return false;
+
+	    default:
+	      return state;
+	  }
+	}
+
+	var messageApp = (0, _redux.combineReducers)({
 	  visibilityFilter: visibilityFilter,
 	  spells: spells,
+	  isConnected: isConnected,
 	  isLoading: isLoading
 	});
 
-	exports.default = spellApp;
-
-/***/ },
-/* 342 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _Message = __webpack_require__(343);
-
-	var _Message2 = _interopRequireDefault(_Message);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var MessageList = function (_Component) {
-	  _inherits(MessageList, _Component);
-
-	  function MessageList() {
-	    _classCallCheck(this, MessageList);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(MessageList).apply(this, arguments));
-	  }
-
-	  _createClass(MessageList, [{
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
-
-	      if (this.props.isLoading) {
-	        return _react2.default.createElement(
-	          'p',
-	          null,
-	          _react2.default.createElement(
-	            'em',
-	            null,
-	            'Loading ...'
-	          )
-	        );
-	      }
-
-	      return _react2.default.createElement(
-	        'ul',
-	        null,
-	        this.props.spells.map(function (todo, index) {
-	          return _react2.default.createElement(_Message2.default, _extends({}, todo, {
-	            key: index,
-	            onClick: function onClick() {
-	              return _this2.props.onTodoClick(index);
-	            } }));
-	        })
-	      );
-	    }
-	  }]);
-
-	  return MessageList;
-	}(_react.Component);
-
-	exports.default = MessageList;
-
-
-	MessageList.propTypes = {
-	  onTodoClick: _react.PropTypes.func.isRequired,
-	  isLoading: _react.PropTypes.bool.isRequired,
-	  spells: _react.PropTypes.arrayOf(_react.PropTypes.shape({
-	    text: _react.PropTypes.string.isRequired,
-	    completed: _react.PropTypes.bool.isRequired
-	  }).isRequired).isRequired
-	};
-
-/***/ },
-/* 343 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Message = function (_Component) {
-	  _inherits(Message, _Component);
-
-	  function Message() {
-	    _classCallCheck(this, Message);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Message).apply(this, arguments));
-	  }
-
-	  _createClass(Message, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'li',
-	        {
-	          onClick: this.props.onClick,
-	          style: {
-	            textDecoration: this.props.completed ? 'line-through' : 'none',
-	            cursor: this.props.completed ? 'default' : 'pointer'
-	          } },
-	        this.props.text
-	      );
-	    }
-	  }]);
-
-	  return Message;
-	}(_react.Component);
-
-	exports.default = Message;
-
-
-	Message.propTypes = {
-	  onClick: _react.PropTypes.func.isRequired,
-	  text: _react.PropTypes.string.isRequired,
-	  completed: _react.PropTypes.bool.isRequired
-	};
+	exports.default = messageApp;
 
 /***/ }
 /******/ ]);

@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { devTools, persistState } from 'redux-devtools';
 import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 import App from './containers/App';
-import todoApp from './reducers';
+import messageApp from './reducers';
 
 const loggerMiddleware = createLogger();
 
@@ -19,7 +19,7 @@ const createStoreWithMiddleware = compose(
   devTools()
 )(createStore);
 
-const store = createStoreWithMiddleware(todoApp);
+const store = createStoreWithMiddleware(messageApp);
 
 render(
   <div>

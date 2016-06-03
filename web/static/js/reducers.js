@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { FETCH_MESSAGES_REQUEST, FETCH_MESSAGES_SUCCESS, FETCH_MESSAGES_FAILURE, ADD_MESSAGE_REQUEST, ADD_MESSAGE_SUCCESS, ADD_MESSAGE_FAILURE, COMPLETE_MESSAGE, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions';
+import { SOCKET_CONNECTED, SOCKET_DISCONNECTED, FETCH_MESSAGES_REQUEST, FETCH_MESSAGES_SUCCESS, FETCH_MESSAGES_FAILURE, ADD_MESSAGE_REQUEST, ADD_MESSAGE_SUCCESS, ADD_MESSAGE_FAILURE, COMPLETE_MESSAGE, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions';
 const { SHOW_ALL } = VisibilityFilters;
 
 function visibilityFilter(state = SHOW_ALL, action) {
@@ -61,10 +61,24 @@ function isLoading(state = false, action) {
   }
 }
 
-const spellApp = combineReducers({
+function isConnected(state = false, action) {
+  switch (action.type) {
+    case SOCKET_CONNECTED:
+      return true;
+
+    case SOCKET_DISCONNECTED:
+      return false;
+
+    default:
+      return state;
+  }
+}
+
+const messageApp = combineReducers({
   visibilityFilter,
   spells,
+  isConnected,
   isLoading
 });
 
-export default spellApp;
+export default messageApp;

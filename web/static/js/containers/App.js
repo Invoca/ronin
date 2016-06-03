@@ -1,37 +1,48 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { fetchMessages, addMessage, completeTodo, setVisibilityFilter, VisibilityFilters } from '../actions';
+import { socket, socketConnected, socketDisconnected, fetchMessages, addMessage, completeTodo, setVisibilityFilter, VisibilityFilters } from '../actions';
 import AddMessage from '../components/AddMessage';
 import MessageList from '../components/MessageList';
-import Footer from '../components/Footer';
+import Status from '../components/Status';
+
 
 class App extends Component {
   componentDidMount() {
     let { dispatch } = this.props;
+
+    socket.onOpen(msg => {
+      console.log('SOCKET open', msg);
+      return dispatch(socketConnected());
+    });
+
+
+    socket.onError(msg => {
+      console.log('SOCKET error', msg);
+      return dispatch(socketDisconnected());
+    });
 
     dispatch(fetchMessages());
   }
 
   render() {
     // Injected by connect() call:
-    const { dispatch, visibleTodos, isLoading, visibilityFilter } = this.props;
+    const { dispatch, visibleTodos, isLoading, isConnected, visibilityFilter } = this.props;
      
     return (
       <div>
-        <AddMessage
-          onAddClick={text =>
-            dispatch(addMessage(text))
-          } />
+        <Status
+          isConnected={isConnected} />
+        <h4>Spells:</h4>
         <MessageList
           spells={visibleTodos}
           isLoading={isLoading}
           onTodoClick={index =>
             dispatch(completeTodo(index))
-          } />
-        <Footer
-          filter={visibilityFilter}
-          onFilterChange={nextFilter =>
-            dispatch(setVisibilityFilter(nextFilter))
+        } />
+        <hr />
+        <AddMessage
+          onAddClick={text =>
+            dispatch(addMessage(text))
           } />
       </div>
     );
@@ -67,7 +78,8 @@ function select(state) {
   return {
     visibleTodos: selectTodos(state.spells, state.visibilityFilter),
     visibilityFilter: state.visibilityFilter,
-    isLoading: state.isLoading
+    isLoading: state.isLoading,
+    isConnected: state.isConnected
   };
 }
 

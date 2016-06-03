@@ -3,12 +3,14 @@ import React, { Component, PropTypes } from 'react';
 export default class AddTodo extends Component {
   render() {
     return (
-      <div>
-        <input type='text' ref='input' onKeyPress={e => this.handleKeyPress(e)} />
-        <button onClick={e => this.handleClick(e)}>
-          Add
-        </button>
-      </div>
+      <form className="form-inline">
+        <div className="form-group">
+          <input className='form-control' placeholder='Cast a spell' type='text' ref='input' onKeyPress={e => this.handleKeyPress(e)} />
+          <button className='btn btn-primary' style={{'margin-left': '10px'}} onClick={e => this.handleClick(e)}>
+            Captivate
+          </button>
+        </div>
+      </form>
     )
   }
 
@@ -22,6 +24,7 @@ export default class AddTodo extends Component {
   handleKeyPress(e) {
     if (e.charCode === 13) { 
       this.handleClick(e);
+      e.preventDefault();
     }
   }
 }

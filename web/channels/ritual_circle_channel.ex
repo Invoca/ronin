@@ -10,13 +10,11 @@ defmodule Ronin.RitualCircleChannel do
   end
   
   def handle_in("new:spell", params, socket) do
-    spell = params["text"]
+    spell_payload = { params["text"], :calendar.local_time() }
     
-    RitualCircleServer.add(spell)
+    spell = RitualCircleServer.add(spell_payload)
     
-    broadcast! socket, "new:spell", %{
-      text: spell
-    }
+    broadcast! socket, "new:spell", spell
     
     {:noreply, socket}
   end

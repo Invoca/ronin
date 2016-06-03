@@ -1,11 +1,14 @@
 import { configureChannel } from './channel';
 
-let socket = configureChannel();
+export let socket = configureChannel();
 let channel = socket.channel('ritual_circle');
 
 /*
  * action types
  */
+
+export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
+export const SOCKET_DISCONNECTED = 'SOCKET_DISCONNECTED';
 
 export const FETCH_MESSAGES_REQUEST = 'FETCH_MESSAGES_REQUEST';
 export const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
@@ -64,13 +67,12 @@ export function addMessage(text) {
       text: text
     };
 
-    console.log("pushing spell!", payload);
     channel.push('new:spell', payload)
       .receive('ok', response => {
         console.log('created MESSAGE', response);
       })
       .receive('error', error => {
-        console.error(error);
+        console.error('error creating message', error);
         dispatch(addMessageFailure(text, error));
       });
   };
@@ -82,17 +84,14 @@ export function fetchMessages() {
 
     channel.join()
       .receive('ok', messages => {
-        console.log('catching up', messages);
         dispatch(fetchMessagesSuccess(messages.spells));
       })
       .receive('error', reason => {
-        console.log('failed join', reason);
         dispatch(fetchMessagesFailure(reason));
       })
       //.after(10000, () => console.log('Networking issue. Still waiting...'));
 
     channel.on('new:spell', msg => {
-      console.log('new:spell', msg);
       dispatch(addMessageSuccess(msg.text));
     });
   };
@@ -104,4 +103,12 @@ export function completeMessage(index) {
 
 export function setVisibilityFilter(filter) {
   return { type: SET_VISIBILITY_FILTER, filter };
+}
+
+export function socketConnected() {
+  return { type: SOCKET_CONNECTED };
+}
+
+export function socketDisconnected() {
+  return { type: SOCKET_DISCONNECTED };
 }
