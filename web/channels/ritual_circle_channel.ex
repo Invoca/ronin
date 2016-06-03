@@ -17,7 +17,7 @@ defmodule Ronin.RitualCircleChannel do
   def handle_in("new:spell", params, socket) do
     spell_payload = { params["text"], :calendar.local_time() }
     
-    CovenServer.send_spell(spell_payload)
+    #CovenServer.send_spell(spell_payload)
     spell = RitualCircleServer.add(spell_payload)
     
     broadcast! socket, "new:spell", spell
