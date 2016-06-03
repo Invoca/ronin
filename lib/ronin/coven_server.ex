@@ -7,7 +7,7 @@ defmodule Ronin.CovenServer do
       fn -> loop() end
     )
     
-    :global.register_name(AkashicRecords.local_node_name(), coven)
+    :global.register_name(AkashicRecords.local_node(), coven)
   end
   
   def send_spell(spell_payload) do
