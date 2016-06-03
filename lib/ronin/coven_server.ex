@@ -11,7 +11,7 @@ defmodule Ronin.CovenServer do
   end
   
   def send_spell(spell_payload) do
-    send_spell_to_server = fn(server) -> :global.whereis_name(server) |> send {:message, spell_payload} end
+    send_spell_to_server = fn(server) -> :global.whereis_name(server) |> send({:message, spell_payload}) end
     
     Enum.each(
       AkashicRecords.remote_nodes(),
