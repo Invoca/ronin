@@ -12,7 +12,7 @@ defmodule Ronin do
       # Start the Ecto repository
       supervisor(Ronin.Repo, []),
       # Here you could define other workers and supervisors as children
-      #worker(Ronin.CovenServer, []),
+      worker(Ronin.CovenServer, []),
       worker(Ronin.RitualCircleServer, []),
     ]
 
