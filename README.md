@@ -21,17 +21,18 @@ Ready to run in production? Please [check our deployment guides](http://www.phoe
 # Local demo notes
 
 ## Server names
-staging-ronin-erik
-staging-ronin-olaf
-staging-ronin-baleog
+ * staging-ronin-erik http://staging-ronin-erik.ringrevenue.net:4000/
+ * staging-ronin-olaf http://staging-ronin-olaf.ringrevenue.net:4000/
+ * staging-ronin-baleog http://staging-ronin-baleog.ringrevenue.net:4000/
 
 
 # Install elixir....
+```
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
 sudo apt-get update
 sudo apt-get install esl-erlang
 sudo apt-get install elixir
-
+```
 
 # Setting up a node for the first time. -
 We are using a git repo running as the root user.
