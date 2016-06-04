@@ -60,8 +60,8 @@ SSH_AUTH_SOCK=$SSH_AUTH_SOCK git fetch && git pull
 Up arrow twice to run the server again.
 
 
-
 # Connections in iex
+These are the commands to start iex and join the cluster for each of the servers.  Pick the command for the server you are on. 
 ```
 iex --name "olaf@10.170.52.171" --cookie milano --erl "-config sys.config" -S mix
 iex --name "erik@10.170.118.186" --cookie milano --erl "-config sys.config" -S mix
@@ -69,6 +69,7 @@ iex --name "baleog@10.170.31.232" --cookie milano --erl "-config sys.config" -S 
 ```
 
 # Launching servers
+These are the commands to run phoenix and join the cluster for each of the servers.  Pick the command for the server you are on. 
 ```
 elixir --name "olaf@10.170.52.171" --cookie 'milano' --erl "-config sys.config" -S mix phoenix.server
 elixir --name "erik@10.170.118.186" --cookie 'milano' --erl "-config sys.config" -S mix phoenix.server
