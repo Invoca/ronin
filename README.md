@@ -35,6 +35,7 @@ sudo apt-get install elixir
 
 # Setting up a node for the first time. -
 We are using a git repo running as the root user.
+```
   sudo -i
   SSH_AUTH_SOCK=$SSH_AUTH_SOCK service nginx stop
   git clone git@github.com:Invoca/ronin.git
@@ -42,30 +43,34 @@ We are using a git repo running as the root user.
   mix deps.get
   mix ecto.create
   tmux new -s ronin
-
+```
 
 # Reloading software and restarting a node...
 Join the tmux session:
-  sudo tmux attach -t ronin
-
+```  
+sudo tmux attach -t ronin
+```
 Stop the currently running process by pressing ctrl-c twice.
 
 Checkout the latest code.
-  SSH_AUTH_SOCK=$SSH_AUTH_SOCK git fetch && git pull
+```
+SSH_AUTH_SOCK=$SSH_AUTH_SOCK git fetch && git pull
+```
 
 Up arrow twice to run the server again.
 
 
 
-# Connections in iex - Success!
+# Connections in iex
+```
 iex --name "olaf@10.170.52.171" --cookie milano --erl "-config sys.config" -S mix
 iex --name "erik@10.170.118.186" --cookie milano --erl "-config sys.config" -S mix
 iex --name "baleog@10.170.31.232" --cookie milano --erl "-config sys.config" -S mix
+```
 
-
-# Launching servers -- sucess
+# Launching servers
+```
 elixir --name "olaf@10.170.52.171" --cookie 'milano' --erl "-config sys.config" -S mix phoenix.server
 elixir --name "erik@10.170.118.186" --cookie 'milano' --erl "-config sys.config" -S mix phoenix.server
 elixir --name "baleog@10.170.31.232" --cookie 'milano' --erl "-config sys.config" -S mix phoenix.server
-
-
+```
