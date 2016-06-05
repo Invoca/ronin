@@ -49,14 +49,20 @@ We are using a git repo running as the root user.
 # Reloading software and restarting a node...
 Join the tmux session:
 ```  
-sudo tmux attach -t ronin
+sudo -i
+tmux attach -t ronin
 ```
 Stop the currently running process by pressing ctrl-c twice.
+
+Press CTRL-d to exit the tmux session.
 
 Checkout the latest code.
 ```
 SSH_AUTH_SOCK=$SSH_AUTH_SOCK git fetch && git pull
+tmux new -s ronin
 ```
+
+In the new TMUX session, run the launching servers command from below to start the service again. 
 
 Up arrow twice to run the server again.
 
