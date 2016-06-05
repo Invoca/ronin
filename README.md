@@ -50,6 +50,7 @@ We are using a git repo running as the root user.
 Join the tmux session:
 ```  
 sudo -i
+cd /root/ronin
 tmux attach -t ronin
 ```
 Stop the currently running process by pressing ctrl-c twice.
